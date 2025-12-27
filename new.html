@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="研究生课程数理统计的完整复习笔记">
+    <title>数理统计全章节复习指南 - 深度交互版</title>
+    
+    <!-- 字体与图标 -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- MathJax 渲染 -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], processEscapes: true },
+            options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'] }
+        };
+    </script>
+
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --accent: #f59e0b;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-pure: #ffffff;
+            --text-muted: #94a3b8;
+            --exam-accent: #10b981; /* 真题接口颜色 */
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-pure);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* 动态流动背景 */
+        .animated-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background: linear-gradient(125deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            background-size: 400% 400%;
+            animation: GradientMove 15s ease infinite;
+        }
+        @keyframes GradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* 进度条 */
+        #progress-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 5px; z-index: 2000;
+        }
+        #progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--secondary)); shadow: 0 0 10px var(--primary); }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        /* 导航栏 */
+        header {
+            position: sticky; top: 0; background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px); border-bottom: 1px solid var(--glass-border);
+            z-index: 1000; padding: 15px 0;
+        }
+        .nav-flex { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.5rem; font-weight: 700; background: linear-gradient(to right, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        /* Hero */
+        .hero { padding: 80px 0; text-align: center; }
+        .hero h1 { font-size: 3.5rem; margin-bottom: 20px; letter-spacing: -1px; }
+        .hero p { color: var(--text-muted); font-size: 1.2rem; max-width: 600px; margin: 0 auto 30px; }
+
+        /* 布局 */
+        .layout { display: grid; grid-template-columns: 280px 1fr; gap: 40px; margin-top: 40px; }
+
+        /* 侧边栏 */
+        .sidebar { position: sticky; top: 100px; height: calc(100vh - 120px); overflow-y: auto; padding-right: 10px; }
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 10px; }
+        .sidebar-item {
+            padding: 12px 15px; border-radius: 8px; margin-bottom: 5px; cursor: pointer;
+            transition: 0.3s; color: var(--text-muted); text-decoration: none; display: block;
+        }
+        .sidebar-item:hover { background: rgba(255,255,255,0.05); color: var(--text-pure); }
+        .sidebar-item.active { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); }
+
+        /* 卡片设计 */
+        .chapter-card {
+            background: var(--card-bg); backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border); border-radius: 16px;
+            padding: 30px; margin-bottom: 40px; scroll-margin-top: 100px;
+        }
+        .chapter-title { font-size: 1.8rem; margin-bottom: 25px; color: #e2e8f0; border-left: 5px solid var(--primary); padding-left: 15px; }
+
+        .topic-card {
+            background: rgba(255, 255, 255, 0.03); border-radius: 12px;
+            margin-bottom: 20px; border: 1px solid var(--glass-border); transition: 0.3s;
+        }
+        .topic-header {
+            padding: 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+        }
+        .topic-header h4 { font-size: 1.1rem; font-weight: 500; }
+        .topic-content { padding: 0 20px 20px; display: none; border-top: 1px solid var(--glass-border); padding-top: 20px; }
+        .topic-card.open .topic-content { display: block; }
+
+        /* 真题接口 - 专属样式 */
+        .exam-portal {
+            margin-top: 20px; padding: 15px; background: rgba(16, 185, 129, 0.1);
+            border: 1px dashed var(--exam-accent); border-radius: 8px;
+        }
+        .exam-portal-header {
+            display: flex; align-items: center; color: var(--exam-accent);
+            font-weight: 600; font-size: 0.9rem; margin-bottom: 10px;
+        }
+        .exam-portal-header svg { width: 18px; height: 18px; margin-right: 8px; }
+        .exam-list { font-size: 0.85rem; color: var(--text-muted); list-style: none; }
+        .exam-item { margin-bottom: 5px; display: flex; justify-content: space-between; }
+        .add-exam-btn {
+            font-size: 0.8rem; color: var(--exam-accent); text-decoration: underline; cursor: pointer; opacity: 0.7; transition: 0.3s;
+        }
+        .add-exam-btn:hover { opacity: 1; }
+
+        /* 内容元素 */
+        .note { padding: 10px 15px; background: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--accent); color: #fbbf24; margin: 15px 0; border-radius: 4px; }
+        .example { padding: 10px 15px; background: rgba(99, 102, 241, 0.1); border-left: 4px solid var(--primary); color: #818cf8; margin: 15px 0; border-radius: 4px; }
+        .answer { padding: 10px 15px; background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--exam-accent); color: #34d399; margin: 10px 0; border-radius: 4px; }
+        .important { color: #f87171; font-weight: 600; margin: 10px 0; }
+
+        /* 表格美化 */
+        .table-wrapper { overflow-x: auto; margin: 20px 0; border-radius: 8px; border: 1px solid var(--glass-border); }
+        table { width: 100%; border-collapse: collapse; background: rgba(0,0,0,0.2); font-size: 0.9rem; }
+        th { background: rgba(255,255,255,0.05); padding: 12px; text-align: left; color: var(--primary); }
+        td { padding: 12px; border-top: 1px solid var(--glass-border); color: #cbd5e1; }
+
+        /* 响应式 */
+        @media (max-width: 992px) {
+            .layout { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .hero h1 { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="animated-bg"></div>
+<div id="progress-container"><div id="progress-bar"></div></div>
+
+<header>
+    <div class="container nav-flex">
+        <div class="logo">MathStats Master</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">研究生课程复习笔记 • 2025版</div>
+    </div>
+</header>
+
+<div class="container">
+    <div class="hero">
+        <h1>数理统计复习经验分享</h1>
+        <p>完整涵盖 7 个章节的核心知识点。不仅是公式的堆砌，更是通关真题的利器。</p>
+        <div style="display: flex; justify-content: center; gap: 15px;">
+            <span style="padding: 5px 15px; border-radius: 20px; background: var(--primary); font-size: 0.8rem;">1周突击版</span>
+            <span style="padding: 5px 15px; border-radius: 20px; border: 1px solid var(--glass-border); font-size: 0.8rem;">进度: 100%</span>
+        </div>
+    </div>
+
+    <div class="layout">
+        <!-- 侧边栏 -->
+        <nav class="sidebar" id="sidebar">
+            <a href="#ch0" class="sidebar-item active">第 0 章 预备知识</a>
+            <a href="#ch1" class="sidebar-item">第 1 章 统计量与分布</a>
+            <a href="#ch2" class="sidebar-item">第 2 章 参数估计</a>
+            <a href="#ch3" class="sidebar-item">第 3 章 统计决策/贝叶斯</a>
+            <a href="#ch4" class="sidebar-item">第 4 章 假设检验</a>
+            <a href="#ch5" class="sidebar-item">第 5 章 方差分析</a>
+            <a href="#ch6" class="sidebar-item">第 6 章 回归分析</a>
+            <a href="#ch7" class="sidebar-item">第 7 章 多元分析初步</a>
+        </nav>
+
+        <!-- 内容 -->
+        <main>
+            <!-- 第0章 -->
+            <section id="ch0" class="chapter-card">
+                <h2 class="chapter-title">第 0 章: 预备知识</h2>
+                
+                <div class="topic-card open">
+                    <div class="topic-header">
+                        <h4>六个常见分布（必背）</h4>
+                        <span>⌃</span>
+                    </div>
+                    <div class="topic-content">
+                        <p class="note">考试会考但不给函数，需要每天背诵记忆</p>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr><th>类型</th><th>分布</th><th>概率密度/分布律</th><th>期望 $EX$</th><th>方差 $DX$</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>1</td><td>均匀分布 $U(a,b)$</td><td>$f(x)=\frac{1}{b-a}, a<x<b$</td><td>$\frac{a+b}{2}$</td><td>$\frac{(b-a)^2}{12}$</td></tr>
+                                    <tr><td>2</td><td>指数分布 $E(\lambda)$</td><td>$f(x)=\lambda e^{-\lambda x}, x>0$</td><td>$\frac{1}{\lambda}$</td><td>$\frac{1}{\lambda^2}$</td></tr>
+                                    <tr><td>3</td><td>泊松分布 $P(\lambda)$</td><td>$P\{X=k\}=\frac{\lambda^k}{k!}e^{-\lambda}$</td><td>$\lambda$</td><td>$\lambda$</td></tr>
+                                    <tr><td>4</td><td>几何分布 $GE(p)$</td><td>$P\{X=k\}=(1-p)^{k-1}p$</td><td>$\frac{1}{p}$</td><td>$\frac{1-p}{p^2}$</td></tr>
+                                    <tr><td>5</td><td>两点分布 $B(1,p)$</td><td>$P\{X=k\}=p^k(1-p)^{1-k}$</td><td>$p$</td><td>$p(1-p)$</td></tr>
+                                    <tr><td>6</td><td>二项分布 $B(N,p)$</td><td>$P\{X=k\}=C_N^k p^k(1-p)^{N-k}$</td><td>$Np$</td><td>$Np(1-p)$</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- 真题接口 -->
+                        <div class="exam-portal">
+                            <div class="exam-portal-header">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                                历年真题考点 (对应本知识点)
+                            </div>
+                            <ul class="exam-list">
+                                <li class="exam-item"><span>暂无数据</span> <span class="add-exam-btn">添加记录</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="topic-card">
+                    <div class="topic-header"><h4>期望和方差的性质</h4><span>⌄</span></div>
+                    <div class="topic-content">
+                        <p><strong>（$X$和$Y$为变量，$a$和$b$为常数）</strong></p>
+                        <p>$E(aX) = aEX$, $D(aY) = a^2D(Y)$</p>
+                        <p>$E(X+Y) = EX + EY$, $D(X\pm Y) = D(X) + D(Y)$</p>
+                        <p>$E(aX+bY) = aEX + bEY$</p>
+                        <p>$D(aX\pm bY) = a^2D(X) + b^2D(Y)$</p>
+                        
+                        <div class="exam-portal">
+                            <div class="exam-portal-header">... 历年真题 ...</div>
+                            <ul class="exam-list"><li class="exam-item"><span class="add-exam-btn">+ 录入历年真题考法</span></li></ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 第1章 -->
+            <section id="ch1" class="chapter-card">
+                <h2 class="chapter-title">第 1 章: 统计量与抽样分布</h2>
+                
+                <div class="topic-card">
+                    <div class="topic-header"><h4>基本概念</h4><span>⌄</span></div>
+                    <div class="topic-content">
+                        <p><strong>联合分布密度/联合分布律</strong>：把概率函数<strong>连乘起来</strong></p>
+                        <p class="example">例：总体$X\sim B(1,p)$，联合分布律 = $\prod_{i=1}^{n} p(x_i) = p^{\sum x_i}(1-p)^{n-\sum x_i}$</p>
+                        <p><strong>统计量</strong></p>
+                        <ul>
+                            <li>样本均值：$\bar{X} = \frac{1}{n}\sum_{i=1}^{n} X_i$</li>
+                            <li>样本方差：$S_n^2 = \frac{1}{n}\sum_{i=1}^n (X_i - \bar{X})^2$</li>
+                            <li>修正样本方差：$S_n^{*2} = \frac{1}{n-1}\sum_{i=1}^n (X_i - \bar{X})^2$</li>
+                        </ul>
+                        <p class="note">$S_n^2 = \frac{n-1}{n} \cdot S_n^{*2}$</p>
+                    </div>
+                </div>
+
+                <div class="topic-card">
+                    <div class="topic-header"><h4>充分统计量与完备统计量 ⭐</h4><span>⌄</span></div>
+                    <div class="topic-content">
+                        <p><strong>充分统计量</strong>：$L(\theta) = h(x_1,\dots,x_n) \cdot g(T(x);\theta)$</p>
+                        <p><strong>充分完备统计量</strong>：指数族形式 $\exp(\sum b_j(\theta)T_j(x))$</p>
+                        <p class="important">注意：不含未知参数</p>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead><tr><th>分布</th><th>条件</th><th>充分完备统计量</th></tr></thead>
+                                <tbody>
+                                    <tr><td>指数/泊松/几何</td><td>-</td><td>$\bar{X}$</td></tr>
+                                    <tr><td>$N(\mu,\sigma^2)$</td><td>均未知</td><td>$(\bar{X}, \sum (X_i-\bar{X})^2)$</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="topic-card">
+                    <div class="topic-header"><h4>三大抽样分布 ⭐⭐⭐</h4><span>⌄</span></div>
+                    <div class="topic-content">
+                        <p>$\chi^2(n)$：独立标准正态平方和。$E=n, D=2n$。</p>
+                        <p>$t(n)$：正态除以$\chi^2$。偶函数。</p>
+                        <p>$F(n_1,n_2)$：两个$\chi^2$之比。$\frac{1}{F} \sim F(n_2, n_1)$。</p>
+                        <!-- 原文中此处有正态总体统计量分布表，完整保留 -->
+                        <div class="table-wrapper">
+                            <table>
+                                <thead><tr><th>目标</th><th>条件</th><th>统计量及其分布</th></tr></thead>
+                                <tbody>
+                                    <tr><td>$\mu$</td><td>$\sigma^2$已知</td><td>$U = \frac{\bar{X}-\mu}{\sigma/\sqrt{n}} \sim N(0,1)$</td></tr>
+                                    <tr><td>$\mu$</td><td>$\sigma^2$未知</td><td>$T = \frac{\bar{X}-\mu}{S^*/\sqrt{n}} \sim t(n-1)$</td></tr>
+                                    <tr><td>$\sigma^2$</td><td>$\mu$未知</td><td>$K = \frac{(n-1)S^{*2}}{\sigma^2} \sim \chi^2(n-1)$</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="topic-card">
+                    <div class="topic-header"><h4>次序统计量</h4><span>⌄</span></div>
+                    <div class="topic-content">
+                        <p>最小 $f_{X_{(1)}}(x) = n[1-F(x)]^{n-1}f(x)$</p>
+                        <p>最大 $f_{X_{(n)}}(x) = n[F(x)]^{n-1}f(x)$</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 第2章 -->
+            <section id="ch2" class="chapter-card">
+                <h2 class="chapter-title">第 2 章: 参数估计（必考）</h2>
+                
+                <div class="topic-card">
+                    <div class="topic-header"><h4>矩估计与MLE ⭐⭐⭐</h4><span>⌄</span></div>
+                    <div class="topic-content">
+                        <p><strong>矩估计</strong>：令样本矩等于总体矩。$\hat{\mu}=\bar{X}, \hat{\sigma}^2=S_n^{*2}$。</p>
+                        <p><strong>MLE步骤</strong>：似然函数 $\to$ 取对数 $\to$ 求导 $\to$ 解方程。</p>
+                        <div class="exam-portal">
+                            <div class="exam-portal-header">历年真题考点</div>
+                            <ul class="exam-list">
+                                <li class="exam-item"><span>2020A: 求解泊松分布参数的MLE</span> <span class="add-exam-btn">查看解析</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="topic-card">
+                    <div class="topic-header"><h4>Fisher信息量与MVUE ⭐⭐</h4><span>⌄</span></div>
+                    <div class="topic-content">
+                        <p><strong>Fisher信息量</strong>：$I(\theta) = -E[\frac{\partial^2}{\partial\theta^2}\ln f]$</p>
+                        <p><strong>Cramer-Rao下界</strong>：$D(\hat{\theta}) \ge \frac{1}{nI(\theta)}$</p>
+                        <p><strong>MVUE</strong>：找充分完备统计量的无偏估计。</p>
+                    </div>
+                </div>
+
+                <div class="topic-card">
+                    <div class="topic-header"><h4>置信区间</h4><span>⌄</span></div>
+                    <div class="topic-content">
+                        <div class="table-wrapper">
+                            <table>
+                                <thead><tr><th>参数</th><th>条件</th><th>置信区间</th></tr></thead>
+                                <tbody>
+                                    <tr><td>$\mu$</td><td>$\sigma^2$已知</td><td>$(\bar{X} \pm u_{\alpha/2} \cdot \sigma/\sqrt{n})$</td></tr>
+                                    <tr><td>$\sigma^2$</td><td>$\mu$未知</td><td>$(\frac{(n-1)S^{*2}}{\chi^2_{\alpha/2}}, \frac{(n-1)S^{*2}}{\chi^2_{1-\alpha/2}})$</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 第3章 -->
+            <section id="ch3" class="chapter-card">
+                <h2 class="chapter-title">第 3 章: 统计决策与贝叶斯估计</h2>
+                <div class="topic-card">
+                    <div class="topic-header"><h4>贝叶斯估计核心</h4><span>⌄</span></div>
+                    <div class="topic-content">
+                        <p>平方损失下的贝叶斯估计 = 后验期望 $E(\theta \mid x)$</p>
+                        <p><strong>重要积分</strong>：$\Gamma(\alpha)$ 性质及 $B(a,b)$ 变换。</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 第4章 -->
+            <section id="ch4" class="chapter-card">
+                <h2 class="chapter-title">第 4 章: 假设检验</h2>
+                <div class="topic-card">
+                    <div class="topic-header"><h4>势函数与拒绝域</h4><span>⌄</span></div>
+                    <div class="topic-content">
+                        <p>势函数 $\beta(\theta) = P_\theta\{X \in W\}$</p>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead><tr><th>$H_0$</th><th>条件</th><th>检验统计量</th><th>拒绝域</th></tr></thead>
+                                <tbody>
+                                    <tr><td>$\mu=\mu_0$</td><td>$\sigma^2$未知</td><td>$T = \frac{\bar{X}-\mu_0}{S^*/\sqrt{n}}$</td><td>$|T| \ge t_{\alpha/2}$</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 第5章 -->
+            <section id="ch5" class="chapter-card">
+                <h2 class="chapter-title">第 5 章: 方差分析</h2>
+                <div class="topic-card">
+                    <div class="topic-header"><h4>平方和分解</h4><span>⌄</span></div>
+                    <div class="topic-content">
+                        <p>$Q_T = Q_A + Q_E$（单因素）</p>
+                        <p>$F = \frac{Q_A/(r-1)}{Q_E/(n-r)} \sim F(r-1, n-r)$</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 第6章 -->
+            <section id="ch6" class="chapter-card">
+                <h2 class="chapter-title">第 6 章: 回归分析</h2>
+                <div class="topic-card">
+                    <div class="topic-header"><h4>最小二乘估计</h4><span>⌄</span></div>
+                    <div class="topic-content">
+                        <p>$\hat{\beta} = \frac{\sum(x_i-\bar{x})(Y_i-\bar{Y})}{\sum(x_i-\bar{x})^2}$</p>
+                        <p>矩阵形式：$\hat{\boldsymbol{\beta}} = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{Y}$</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 第7章 -->
+            <section id="ch7" class="chapter-card">
+                <h2 class="chapter-title">第 7 章: 多元分析初步</h2>
+                <div class="topic-card">
+                    <div class="topic-header"><h4>多元正态性质</h4><span>⌄</span></div>
+                    <div class="topic-content">
+                        <p>$X\sim N_p(\mu,\Sigma) \implies CX+b \sim N_m(C\mu+b, C\Sigma C^T)$</p>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+</div>
+
+<footer style="padding: 50px 0; text-align: center; border-top: 1px solid var(--glass-border); margin-top: 50px;">
+    <p style="color: var(--text-muted); font-size: 0.9rem;">&copy; 2025 数理统计复习经验分享. 祝大家高分通过！</p>
+</footer>
+
+<script>
+    // 进度条逻辑
+    window.onscroll = function() {
+        let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+        let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        let scrolled = (winScroll / height) * 100;
+        document.getElementById("progress-bar").style.width = scrolled + "%";
+        
+        // 侧边栏高亮
+        let current = "";
+        const sections = document.querySelectorAll('section');
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            if (pageYOffset >= sectionTop - 150) {
+                current = section.getAttribute('id');
+            }
+        });
+
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.classList.remove('active');
+            if (item.getAttribute('href') === "#" + current) {
+                item.classList.add('active');
+            }
+        });
+    };
+
+    // 折叠交互逻辑
+    document.querySelectorAll('.topic-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const card = header.parentElement;
+            card.classList.toggle('open');
+            const icon = header.querySelector('span');
+            icon.innerText = card.classList.contains('open') ? '⌃' : '⌄';
+        });
+    });
+
+    // 侧边栏点击平滑跳转
+    document.querySelectorAll('.sidebar-item').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+</script>
+
+</body>
+</html>
